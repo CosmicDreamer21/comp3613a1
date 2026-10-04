@@ -93,15 +93,47 @@ Assumption: `User` handles the three roles (`student`, `host`, `admin`), so the 
 
 ## Wireframes
 
-Embed each student-crafted wireframe here (Phase 4). Paths are relative to this file:
+### Shared entry
 
-```markdown
-### Explore / Search Publications
+![Shared entry](wireframes/Shared%20entry.png)
 
-![Explore / Search Publications](wireframes/explore.png)
-```
+### Book Accommodation (Student)
 
-`python manage.py report` also embeds any PNG/JPG still missing from `docs/wireframes/`.
+![Book Accommodation (Student)](wireframes/Book%20accommodation%20lane.png)
+
+### List Accommodation (Host)
+
+![List Accommodation (Host)](wireframes/List%20accommodation%20lane.png)
+
+### Moderate Listings (Admin)
+
+![Moderate Listings (Admin)](wireframes/Moderate%20listings%20lane.png)
+
+Phase 4 notes: The shared entry screen covers a common login and role-selection path for the three actors. The student booking lane covers browsing, listing details, booking confirmation, and the completed review path. The host lane covers creating a listing, review, and managing incoming bookings. The admin lane covers the moderation queue, review of a listing, and the approval/rejection outcome path. The set is complete for all three named workflows; the remaining model note is that the listing lifecycle and booking lifecycle statuses should remain explicit in the ERD.
+
+<!-- student-build:wireframe-coverage
+use_case: Book Accommodation (Student)
+image: docs/wireframes/Book accommodation lane.png
+covered: yes
+-->
+
+<!-- student-build:wireframe-coverage
+use_case: List Accommodation (Host)
+image: docs/wireframes/List accommodation lane.png
+covered: yes
+-->
+
+<!-- student-build:wireframe-coverage
+use_case: Moderate Listings (Admin)
+image: docs/wireframes/Moderate listings lane.png
+covered: yes
+-->
+
+<!-- student-build:wireframe-coverage
+use_case: Shared Entry / Role Access
+image: docs/wireframes/Shared entry.png
+covered: yes
+-->
 
 ## Theming
 
