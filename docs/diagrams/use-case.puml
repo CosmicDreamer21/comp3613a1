@@ -1,0 +1,28 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam actorBorderColor #1B365D
+skinparam actorFontColor #1E232D
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam usecaseBorderColor #1B365D
+skinparam usecaseFontColor #1E232D
+skinparam rectangleBorderColor #1B365D
+skinparam rectangleBackgroundColor #F8FAFC
+skinparam arrowColor #1B365D
+
+actor "Student" as Student
+actor "Admin" as Admin
+
+rectangle "Student Accommodation" {
+  usecase "Book Accommodation" as Book_Accommodation
+  usecase "List Accommodation" as List_Accommodation
+  usecase "Moderate Listings" as Moderate_Listings
+}
+
+actor "Host" as Host
+
+Student --> Book_Accommodation
+List_Accommodation <-- Host
+Admin --> Moderate_Listings
+
+@enduml

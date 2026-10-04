@@ -6,17 +6,27 @@ Do not put your student ID in this file if you will commit it. The PDF cover add
 
 ## Assigned project
 
+Student Accommodation
+
 ## Three workflows
 
 ### 1.
 
+Book Accommodation (Student)
+
 ### 2.
 
+List Accommodation (Host)
+
 ### 3.
+
+Moderate Listings (Admin)
 
 ## Use case diagram
 
 ![Use case diagram](diagrams/use-case.png)
+
+Phase 2 notes: Students browse and view listings as part of Book Accommodation. Hosts list accommodation, and Admins separately review pending listings; a listing must be approved before publication. The three use cases are started by their named actors, with no shared use case or «include» / «extend» relationship identified.
 
 ## Model diagram
 
@@ -24,8 +34,62 @@ First draft. Update this section in Phase 5 when polish revises the model, and n
 
 ```mermaid
 erDiagram
-  ENTITY ||--o{ OTHER : relates
+    USER ||--o{ LISTING : hosts
+    USER ||--o{ BOOKING : books
+    USER ||--o{ REVIEW : writes
+    LISTING ||--o{ BOOKING : has
+    LISTING ||--o{ REVIEW : receives
+    BOOKING ||--o| REVIEW : supports
+
+    USER {
+      bigint id PK
+      string username
+      string email
+      string password_hash
+      string full_name
+      enum role "student | host | admin"
+      datetime created_at
+    }
+
+    LISTING {
+      bigint id PK
+      bigint host_id FK
+      string title
+      text description
+      string city
+      string address
+      decimal price_per_night
+      string room_type
+      enum status "pending | approved | rejected | active | archived"
+      boolean is_verified
+      datetime created_at
+      datetime updated_at
+    }
+
+    BOOKING {
+      bigint id PK
+      bigint student_id FK
+      bigint listing_id FK
+      date check_in
+      date check_out
+      int guests
+      decimal total_price
+      enum status "pending | confirmed | cancelled | completed"
+      datetime created_at
+    }
+
+    REVIEW {
+      bigint id PK
+      bigint listing_id FK
+      bigint student_id FK
+      bigint booking_id FK
+      int rating
+      text comment
+      datetime created_at
+    }
 ```
+
+Assumption: `User` handles the three roles (`student`, `host`, `admin`), so the admin is not a separate entity; listings move through a `status` workflow before publication, and `Review` requires a completed booking.
 
 ## Wireframes
 

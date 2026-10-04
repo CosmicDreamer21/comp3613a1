@@ -1,0 +1,22 @@
+{
+  "system": "Student Accommodation",
+  "actors": [
+    {"name": "Student", "side": "left"},
+    {"name": "Host", "side": "right"},
+    {"name": "Admin", "side": "left"}
+  ],
+  "use_cases": [
+    {
+      "name": "Book Accommodation",
+      "actors": ["Student"]
+    },
+    {
+      "name": "List Accommodation",
+      "actors": ["Host"]
+    },
+    {
+      "name": "Moderate Listings",
+      "actors": ["Admin"]
+    }
+  ]
+}
