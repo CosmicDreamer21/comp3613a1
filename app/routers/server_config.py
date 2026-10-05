@@ -374,11 +374,13 @@ def _seed_demo_users() -> tuple[int, int]:
     from app.database import get_cli_session
     from app.repositories.user import UserRepository
     from app.schemas.user import AdminCreate, RegularUserCreate
+    from app.seed import seed_host_fixtures
     from app.utilities.security import encrypt_password
 
     demo_users = [
-        ("bob", "bob@example.com", "bobpass", "regular_user"),
-        ("admin", "admin@example.com", "adminpass", "admin"),
+        ("maya.student", "maya.chen@campus.edu", "StudentStay123", "student"),
+        ("rivera.host", "elena.rivera@campus.edu", "StudentStay123", "host"),
+        ("admin01", "admin01@campus.edu", "StudentStay123", "admin"),
     ]
     created = 0
     skipped = 0
@@ -398,4 +400,6 @@ def _seed_demo_users() -> tuple[int, int]:
                 )
             )
             created += 1
+    with get_cli_session() as session:
+        seed_host_fixtures(session)
     return created, skipped

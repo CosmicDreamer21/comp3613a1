@@ -1,0 +1,53 @@
+{% extends "authenticated-base.html" %}
+
+{% block subpage_content %}
+<div class="host-page">
+  <div class="host-page-header">
+    <div>
+      <p class="host-muted mb-1">Host workspace</p>
+      <h1 class="h2 mb-1">Your listings</h1>
+      <p class="host-muted mb-0">Track moderation status and update rejected listings.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('host_create_listing_form') }}">Create listing</a>
+  </div>
+
+  {% if listings %}
+  <div class="host-listing-grid">
+    {% for listing in listings %}
+    <article class="host-listing-card">
+      {% if listing.image_url %}
+      <img class="img-fluid rounded mb-3" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+      {% else %}
+      <div class="image-placeholder mb-3" style="height: 10rem;">Listing image</div>
+      {% endif %}
+      <div class="d-flex align-items-start justify-content-between gap-2">
+        <div>
+          <h2 class="h5 mb-1">{{ listing.title }}</h2>
+          {% if listing.status == "approved" %}<span class="verified-badge">VERIFIED</span>{% endif %}
+          <p class="host-muted mb-2">{{ listing.city }} · ${{ "%.2f"|format(listing.price_per_night) }}/night</p>
+        </div>
+        <span class="host-status status-{{ listing.status }}">{{ listing.status }}</span>
+      </div>
+      <p class="mb-2">{{ listing.description }}</p>
+      {% if listing.status == "rejected" %}
+      <div class="host-reason mb-3">
+        <strong>Rejection reason:</strong> {{ listing.rejection_reason_choice or "Not provided" }}
+        {% if listing.rejection_reason_details %}<div>{{ listing.rejection_reason_details }}</div>{% endif %}
+        {% if listing.reviewed_at %}<div class="host-muted mt-1">Reviewed {{ listing.reviewed_at.strftime("%Y-%m-%d") }}</div>{% endif %}
+      </div>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('host_edit_listing_form', listing_id=listing.id) }}">Edit and resubmit</a>
+      {% elif listing.status == "approved" %}
+      <p class="host-muted mb-0">Visible to students.</p>
+      {% else %}
+      <p class="host-muted mb-0">Pending admin review.</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="host-panel">
+    <p class="host-muted mb-0">You have not created a listing yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

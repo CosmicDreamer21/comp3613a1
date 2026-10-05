@@ -1,0 +1,122 @@
+{% extends "authenticated-base.html" %}
+{% block title %}{{ listing.title }} · StudentStay{% endblock %}
+
+{% block subpage_content %}
+<div class="student-page">
+  <a class="student-back-link" href="{{ url_for('student_listings_view') }}">‹ Browse listings</a>
+  <div class="student-detail-layout">
+    <main>
+      <div class="student-detail-heading">
+        <div>
+          <h1>{{ listing.title }}</h1>
+          <p class="student-muted">{{ listing.room_type }} · {{ listing.city }} · Hosted by {{ listing.host.full_name or listing.host.username if listing.host else "StudentStay host" }}</p>
+        </div>
+        <span class="verified-badge">VERIFIED LISTING</span>
+      </div>
+      {% if listing.image_url %}
+      <img class="student-detail-image" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+      {% else %}
+      <div class="image-placeholder student-detail-image">Property image placeholder</div>
+      {% endif %}
+      <p class="student-description">{{ listing.description }}</p>
+      <section class="student-detail-panel">
+        <h2>About this place</h2>
+        <p><strong>Amenities:</strong> {{ listing.amenities or "Not specified" }}</p>
+        <p><strong>Location:</strong> {{ listing.city }} · Full address is shared after confirmation.</p>
+        <p class="mb-0"><strong>Available:</strong> {{ listing.available_from }} to {{ listing.available_until }} · Minimum {{ listing.minimum_stay_nights }} night(s)</p>
+      </section>
+
+      <section class="student-reviews">
+        <div class="student-section-heading">
+          <h2>Guest reviews</h2>
+          {% if average_rating is not none %}
+          <span>★ {{ "%.1f"|format(average_rating) }} · {{ reviews|length }} review(s)</span>
+          {% else %}
+          <span class="student-muted">No reviews yet</span>
+          {% endif %}
+        </div>
+        {% for review, reviewer in reviews %}
+        <article class="student-review-card">
+          <div class="student-review-rating">{{ "★" * review.rating }}{{ "☆" * (5 - review.rating) }}</div>
+          <p class="student-muted">{{ reviewer.full_name or reviewer.username }} · {{ review.created_at.strftime("%b %d, %Y") }}</p>
+          <p>{{ review.comment }}</p>
+          <div class="student-review-tags">
+            {% if review.accurate_listing %}<span>Accurate listing</span>{% endif %}
+            {% if review.safe_location %}<span>Safe location</span>{% endif %}
+            {% if review.clean_and_tidy %}<span>Clean and tidy</span>{% endif %}
+            {% if review.responsive_host %}<span>Responsive host</span>{% endif %}
+          </div>
+        </article>
+        {% else %}
+        <p class="student-muted">Be the first to review this stay after completing a booking.</p>
+        {% endfor %}
+      </section>
+    </main>
+
+    <aside class="student-booking-panel">
+      <p class="student-nightly-price">${{ "%.2f"|format(listing.price_per_night) }} <span>/ night</span></p>
+      <p class="student-muted">Minimum stay: {{ listing.minimum_stay_nights }} nights</p>
+      <form method="post" action="{{ url_for('student_request_booking', listing_id=listing.id) }}">
+        <label class="form-label">Check-in
+          <input class="form-control" id="check-in" type="date" name="check_in" min="{{ minimum_check_in }}" max="{{ listing.available_until }}" required>
+        </label>
+        <label class="form-label">Check-out
+          <input class="form-control" id="check-out" type="date" name="check_out" min="{{ minimum_check_out }}" max="{{ listing.available_until }}" required>
+        </label>
+        <label class="form-label">Guests
+          <input class="form-control" type="number" name="guests" min="1" value="1" required>
+        </label>
+        <div class="student-account-summary">
+          <h2>Your details</h2>
+          <label class="form-label">Full name
+            <input class="form-control" value="{{ user.full_name or user.username }}" readonly>
+          </label>
+          <label class="form-label">University email
+            <input class="form-control" value="{{ user.email }}" readonly>
+          </label>
+          <label class="form-label mb-0">Student ID
+            <input class="form-control" value="{{ user.student_id or '' }}" readonly>
+          </label>
+        </div>
+        <p class="student-booking-estimate">Estimated total: <strong id="estimated-total">Select dates</strong></p>
+        <p class="student-muted">Your request is pending until the host confirms. Total is nightly price × nights.</p>
+        <button class="btn btn-primary w-100" type="submit">Request booking</button>
+      </form>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script>
+  (() => {
+    const checkIn = document.getElementById("check-in");
+    const checkOut = document.getElementById("check-out");
+    const estimate = document.getElementById("estimated-total");
+    const nightlyRate = Number("{{ listing.price_per_night }}");
+    const minimumNights = {{ listing.minimum_stay_nights }};
+
+    function updateEstimate() {
+      if (!checkIn.value) {
+        estimate.textContent = "Select dates";
+        return;
+      }
+      const [year, month, day] = checkIn.value.split("-").map(Number);
+      const earliestCheckout = new Date(year, month - 1, day + minimumNights);
+      const monthString = String(earliestCheckout.getMonth() + 1).padStart(2, "0");
+      const dayString = String(earliestCheckout.getDate()).padStart(2, "0");
+      checkOut.min = `${earliestCheckout.getFullYear()}-${monthString}-${dayString}`;
+      if (!checkOut.value || checkOut.value < checkOut.min) {
+        checkOut.value = checkOut.min;
+      }
+      const nights = (new Date(`${checkOut.value}T00:00:00`) - new Date(`${checkIn.value}T00:00:00`)) / 86400000;
+      estimate.textContent = nights > 0
+        ? `$${(nightlyRate * nights).toFixed(2)}`
+        : "Choose a valid date range";
+    }
+
+    checkIn.addEventListener("change", updateEstimate);
+    checkOut.addEventListener("change", updateEstimate);
+  })();
+</script>
+{% endblock %}

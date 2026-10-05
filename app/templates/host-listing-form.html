@@ -1,0 +1,139 @@
+{% extends "authenticated-base.html" %}
+
+{% block subpage_content %}
+{% set form_action = url_for('host_resubmit_listing', listing_id=listing.id) if is_resubmission else url_for('host_create_listing') %}
+<div class="host-page">
+  <div class="host-page-header">
+    <div>
+      <p class="host-muted mb-1">Step-by-step listing form</p>
+      <h1 class="h2 mb-1">{{ "Edit and resubmit listing" if is_resubmission else "Create listing" }}</h1>
+      <p class="host-muted mb-0">Required information is reviewed before a listing is published.</p>
+    </div>
+  </div>
+
+  {% if is_resubmission %}
+  <div class="host-reason mb-3">
+    <strong>Previous rejection:</strong> {{ listing.rejection_reason_choice or "No reason provided" }}
+    {% if listing.rejection_reason_details %}<div>{{ listing.rejection_reason_details }}</div>{% endif %}
+  </div>
+  {% endif %}
+
+  <form id="listing-form" method="post" action="{{ form_action }}">
+    <div class="host-form-steps">
+      <section class="host-step" data-form-step="0">
+        <p class="host-muted mb-1">Step 1 of 3 · Property</p>
+        <h2>Tell students about your place</h2>
+        <div class="host-form-grid">
+          <label class="form-label">Listing title
+            <input class="form-control" name="title" required minlength="3" maxlength="80" value="{{ listing.title if listing else '' }}">
+          </label>
+          <label class="form-label">Room type
+            <input class="form-control" name="room_type" required value="{{ listing.room_type if listing else '' }}">
+          </label>
+          <label class="form-label full-width">Description
+            <textarea class="form-control" name="description" rows="4" required minlength="10" maxlength="2000">{{ listing.description if listing else '' }}</textarea>
+          </label>
+          <label class="form-label">City / area
+            <input class="form-control" name="city" required value="{{ listing.city if listing else '' }}">
+          </label>
+          <label class="form-label">Street address
+            <input class="form-control" name="address" required value="{{ listing.address if listing else '' }}">
+          </label>
+          <label class="form-label full-width">Amenities (comma-separated)
+            <input class="form-control" name="amenities" value="{{ listing.amenities if listing else '' }}">
+          </label>
+        </div>
+        <div class="host-form-footer">
+          <button class="btn btn-primary" type="button" data-next-step>Continue to pricing</button>
+        </div>
+      </section>
+
+      <section class="host-step" data-form-step="1" hidden>
+        <p class="host-muted mb-1">Step 2 of 3 · Pricing and availability</p>
+        <h2>Set price and available dates</h2>
+        <div class="host-form-grid">
+          <label class="form-label">Price per night (TTD)
+            <input class="form-control" type="number" name="price_per_night" min="0.01" step="0.01" required value="{{ listing.price_per_night if listing else '' }}">
+          </label>
+          <label class="form-label">Minimum stay (nights)
+            <input class="form-control" type="number" name="minimum_stay_nights" min="1" step="1" required value="{{ listing.minimum_stay_nights if listing else 1 }}">
+          </label>
+          <label class="form-label">Available from
+            <input class="form-control" type="date" name="available_from" required value="{{ listing.available_from.isoformat() if listing else '' }}">
+          </label>
+          <label class="form-label">Available until
+            <input class="form-control" type="date" name="available_until" required value="{{ listing.available_until.isoformat() if listing else '' }}">
+          </label>
+          <label class="form-label full-width">Image URL (optional)
+            <input class="form-control" type="url" name="image_url" value="{{ listing.image_url if listing and listing.image_url else '' }}">
+          </label>
+        </div>
+        <div class="host-form-footer">
+          <button class="btn btn-outline-secondary" type="button" data-previous-step>Back</button>
+          <button class="btn btn-primary" type="button" data-next-step>Review listing</button>
+        </div>
+      </section>
+
+      <section class="host-step" data-form-step="2" hidden>
+        <p class="host-muted mb-1">Step 3 of 3 · Review and submit</p>
+        <h2>Review your listing</h2>
+        <div class="host-panel">
+          <h3 class="h5" data-review-title>{{ listing.title if listing else "Your listing title" }}</h3>
+          <p class="host-muted" data-review-location>{{ listing.city if listing else "Area" }} · {{ listing.room_type if listing else "Room type" }}</p>
+          <p data-review-description>{{ listing.description if listing else "Your description will appear here." }}</p>
+          <p class="mb-1"><strong>Price:</strong> <span data-review-price>{{ listing.price_per_night if listing else "0" }}</span> TTD/night</p>
+          <p class="mb-0"><strong>Available:</strong> <span data-review-dates>{{ listing.available_from if listing else "Start date" }} to {{ listing.available_until if listing else "End date" }}</span></p>
+        </div>
+        <p class="host-muted mt-3 mb-0">Your listing is not visible to students until an admin approves it.</p>
+        <div class="host-form-footer">
+          <button class="btn btn-outline-secondary" type="button" data-previous-step>Back</button>
+          <button class="btn btn-primary" type="submit">{{ "Resubmit for review" if is_resubmission else "Submit for review" }}</button>
+        </div>
+      </section>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script>
+  (() => {
+    const form = document.getElementById("listing-form");
+    const steps = [...form.querySelectorAll("[data-form-step]")];
+    let current = 0;
+
+    function showStep(index) {
+      current = index;
+      steps.forEach((step, stepIndex) => {
+        step.hidden = stepIndex !== current;
+      });
+      if (current === 2) {
+        form.querySelector("[data-review-title]").textContent = form.elements.title.value;
+        form.querySelector("[data-review-location]").textContent =
+          `${form.elements.city.value} · ${form.elements.room_type.value}`;
+        form.querySelector("[data-review-description]").textContent =
+          form.elements.description.value;
+        form.querySelector("[data-review-price]").textContent =
+          form.elements.price_per_night.value;
+        form.querySelector("[data-review-dates]").textContent =
+          `${form.elements.available_from.value} to ${form.elements.available_until.value}`;
+      }
+    }
+
+    form.addEventListener("click", (event) => {
+      const next = event.target.closest("[data-next-step]");
+      const previous = event.target.closest("[data-previous-step]");
+      if (next) {
+        const fields = [...steps[current].querySelectorAll("input, textarea")];
+        const invalid = fields.find((field) => !field.checkValidity());
+        if (invalid) {
+          invalid.reportValidity();
+          return;
+        }
+        showStep(Math.min(current + 1, steps.length - 1));
+      }
+      if (previous) showStep(Math.max(current - 1, 0));
+    });
+  })();
+</script>
+{% endblock %}

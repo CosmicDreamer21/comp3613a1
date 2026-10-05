@@ -6,6 +6,7 @@ from app.services.auth_service import AuthService
 from app.repositories.user import UserRepository
 from app.utilities.flash import flash
 from app.utilities.security import access_token_cookie_kwargs
+from app.services.auth_service import REMEMBER_ME_DURATION
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -20,12 +21,13 @@ async def login_view(request: Request):
 async def login_action_ajax(
     db: SessionDep,
     request: Request,
-    username: str = Form(),
+    identifier: str = Form(),
     password: str = Form(),
+    remember_me: bool = Form(False),
 ):
     user_repo = UserRepository(db)
     auth_service = AuthService(user_repo)
-    access_token = auth_service.authenticate_user(username, password)
+    access_token = auth_service.authenticate_user(identifier, password, remember_me)
     if not access_token:
         flash(request, "Incorrect username or password", "danger")
         return RedirectResponse(
@@ -33,8 +35,13 @@ async def login_action_ajax(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    user = user_repo.get_by_username(username)
-    dest = "admin_home_view" if user and user.role == "admin" else "user_home_view"
+    user = user_repo.get_by_identifier(identifier)
+    if user and user.role == "admin":
+        dest = "admin_home_view"
+    elif user and user.role == "host":
+        dest = "host_home_view"
+    else:
+        dest = "user_home_view"
     response = RedirectResponse(
         url=request.url_for(dest),
         status_code=status.HTTP_303_SEE_OTHER,
@@ -42,6 +49,7 @@ async def login_action_ajax(
     response.set_cookie(
         key="access_token",
         value=access_token,
+        max_age=int(REMEMBER_ME_DURATION.total_seconds()) if remember_me else None,
         **access_token_cookie_kwargs(),
     )
     return response

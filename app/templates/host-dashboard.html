@@ -1,0 +1,92 @@
+{% extends "authenticated-base.html" %}
+
+{% block subpage_content %}
+<div class="host-page">
+  <div class="host-page-header">
+    <div>
+      <p class="host-muted mb-1">Host dashboard</p>
+      <h1 class="h2 mb-1">Good morning, {{ user.full_name or user.username }}</h1>
+      <p class="host-muted mb-0">Here is what needs your attention today.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('host_create_listing_form') }}">Create listing</a>
+  </div>
+
+  <section class="host-metrics" aria-label="Host summary">
+    <div class="host-metric">
+      <div class="host-metric-label">Approved listings</div>
+      <div class="host-metric-value">{{ approved_count }}</div>
+      <div class="host-muted">{{ listings|length }} total listing(s)</div>
+    </div>
+    <div class="host-metric">
+      <div class="host-metric-label">Upcoming stays</div>
+      <div class="host-metric-value">{{ bookings|length }}</div>
+      <div class="host-muted">Pending and confirmed bookings</div>
+    </div>
+    <div class="host-metric">
+      <div class="host-metric-label">Pending requests</div>
+      <div class="host-metric-value">{{ pending_count }}</div>
+      <div class="host-muted">Respond to booking requests</div>
+    </div>
+  </section>
+
+  <div class="host-columns">
+    <section class="host-panel host-section">
+      <div class="host-section-header">
+        <h2 class="h5 mb-0">Your listings</h2>
+        <a href="{{ url_for('host_listings_view') }}">View all</a>
+      </div>
+      {% if listings %}
+        {% for listing in listings[:4] %}
+        <div class="host-listing-row">
+          <div>
+            <strong>{{ listing.title }}</strong>
+            {% if listing.status == "approved" %}<span class="verified-badge">VERIFIED</span>{% endif %}
+            <div class="host-muted">{{ listing.city }} · ${{ "%.2f"|format(listing.price_per_night) }}/night</div>
+            {% if listing.status == "rejected" and listing.rejection_reason_choice %}
+            <div class="host-reason mt-2">
+              <strong>Rejection reason:</strong> {{ listing.rejection_reason_choice }}
+              {% if listing.rejection_reason_details %}<div>{{ listing.rejection_reason_details }}</div>{% endif %}
+            </div>
+            {% endif %}
+          </div>
+          <span class="host-status status-{{ listing.status }}">{{ listing.status }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="host-muted mt-3 mb-0">You have not created a listing yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="host-panel host-section">
+      <div class="host-section-header">
+        <h2 class="h5 mb-0">Incoming bookings</h2>
+      </div>
+      {% if bookings %}
+        {% for booking, listing, student in bookings %}
+        <div class="host-booking-row">
+          <div>
+            <strong>{{ student.full_name or student.username }}</strong>
+            <div class="host-muted">{{ listing.title }} · {{ booking.check_in }} to {{ booking.check_out }} · {{ booking.guests }} guest(s)</div>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="host-status status-{{ booking.status }}">{{ booking.status }}</span>
+            {% if booking.status == "pending" %}
+            <form method="post" action="{{ url_for('host_update_booking_status', booking_id=booking.id) }}">
+              <input type="hidden" name="new_status" value="confirmed">
+              <button class="btn btn-primary btn-sm" type="submit">Confirm</button>
+            </form>
+            <form method="post" action="{{ url_for('host_update_booking_status', booking_id=booking.id) }}">
+              <input type="hidden" name="new_status" value="cancelled">
+              <button class="btn btn-outline-secondary btn-sm" type="submit">Cancel</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="host-muted mt-3 mb-0">There are no upcoming booking requests.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

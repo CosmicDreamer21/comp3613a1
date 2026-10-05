@@ -4,8 +4,8 @@
 {% block internal_css %}
 <style>
     body {
-        background: #0f1419;
-        color: #e7ecf3;
+        background: var(--brand-bg);
+        color: var(--brand-ink);
         min-height: 100vh;
     }
     .cfg-wrap {
@@ -14,41 +14,44 @@
         padding: 2rem 1rem 3rem;
     }
     .cfg-card {
-        background: #1a222d;
-        border: 1px solid #2a3544;
-        border-radius: 0.75rem;
+        background: #ffffff;
+        border: 1px solid var(--brand-border);
+        border-radius: var(--brand-radius);
         padding: 1.25rem 1.5rem;
         margin-bottom: 1rem;
     }
     .cfg-card h2 {
         font-size: 1.1rem;
         margin-bottom: 1rem;
-        color: #9db0c7;
+        color: var(--brand-ink);
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
-    .cfg-muted { color: #8b9bb0; }
-    .badge-ok { background: #198754; }
-    .badge-bad { background: #dc3545; }
+    .cfg-muted { color: var(--brand-muted); }
+    .cfg-wrap .badge {
+        color: var(--brand-ink);
+        background: var(--brand-surface);
+        border: 1px solid var(--brand-border);
+        font-weight: 500;
+    }
+    .cfg-wrap .badge-ok {
+        color: #ffffff;
+        background: var(--brand-primary);
+        border-color: var(--brand-primary);
+    }
+    .cfg-wrap .badge-bad {
+        color: var(--brand-ink);
+        background: #ffffff;
+        border-color: var(--brand-ink);
+    }
     table.cfg td, table.cfg th {
-        border-color: #2a3544;
+        border-color: var(--brand-border);
         vertical-align: top;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: 0.85rem;
     }
     .btn-row form { display: inline-block; margin: 0.25rem 0.35rem 0.25rem 0; }
-    .form-control, .form-select {
-        background: #0f1419;
-        border-color: #2a3544;
-        color: #e7ecf3;
-    }
-    .form-control:focus, .form-select:focus {
-        background: #0f1419;
-        border-color: #4d6b8a;
-        color: #e7ecf3;
-        box-shadow: none;
-    }
-    .alert { border: none; }
+    .alert { border: 1px solid var(--brand-border); }
 </style>
 {% endblock %}
 
@@ -84,7 +87,7 @@
             <p class="cfg-muted mb-0">Ops console — password gated</p>
         </div>
         <form method="post" action="{{ url_for('config_logout_action') }}">
-            <button class="btn btn-outline-light btn-sm" type="submit">Lock</button>
+            <button class="btn btn-outline-secondary btn-sm" type="submit">Lock</button>
         </form>
     </div>
 
@@ -108,7 +111,7 @@
             <span class="badge text-bg-secondary">pid {{ status.pid }}</span>
             <span class="badge text-bg-secondary">up {{ status.uptime }}</span>
         </div>
-        <table class="table table-sm table-dark cfg mb-0">
+        <table class="table table-sm table-light cfg mb-0">
             <tbody>
                 <tr><th>Started (UTC)</th><td>{{ status.started_at }}</td></tr>
                 <tr><th>Now (UTC)</th><td>{{ status.now }}</td></tr>
@@ -117,7 +120,7 @@
                 <tr><th>CWD</th><td>{{ status.cwd }}</td></tr>
                 <tr><th>Users</th><td>{{ status.user_count if status.user_count is not none else "—" }}</td></tr>
                 {% if status.db_error %}
-                <tr><th>DB note</th><td class="text-warning">{{ status.db_error }}</td></tr>
+                <tr><th>DB note</th><td class="text-muted">{{ status.db_error }}</td></tr>
                 {% endif %}
             </tbody>
         </table>
@@ -126,7 +129,7 @@
     <div class="cfg-card">
         <h2>Config &amp; environment</h2>
         <p class="cfg-muted small">Secrets are masked. Values reflect the live process (after cache clears / ENV toggles).</p>
-        <table class="table table-sm table-dark cfg mb-0">
+        <table class="table table-sm table-light cfg mb-0">
             <tbody>
                 {% for key, value in config.items() %}
                 <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
@@ -139,10 +142,10 @@
         <h2>Utilities</h2>
         <div class="btn-row">
             <form method="post" action="{{ url_for('config_ping_db_action') }}">
-                <button class="btn btn-outline-info btn-sm" type="submit">Ping DB</button>
+                <button class="btn btn-outline-secondary btn-sm" type="submit">Ping DB</button>
             </form>
             <form method="post" action="{{ url_for('config_seed_action') }}">
-                <button class="btn btn-outline-success btn-sm" type="submit">Seed demo users</button>
+                <button class="btn btn-outline-secondary btn-sm" type="submit">Seed demo users</button>
             </form>
             <form method="post" action="{{ url_for('config_dispose_pool_action') }}">
                 <button class="btn btn-outline-secondary btn-sm" type="submit">Dispose DB pool</button>
@@ -151,7 +154,7 @@
                 <button class="btn btn-outline-secondary btn-sm" type="submit">Clear settings cache</button>
             </form>
             <form method="post" action="{{ url_for('config_toggle_env_action') }}">
-                <button class="btn btn-outline-warning btn-sm" type="submit">
+                <button class="btn btn-outline-secondary btn-sm" type="submit">
                     Toggle ENV → {% if status.is_production %}development{% else %}production{% endif %}
                 </button>
             </form>
@@ -168,7 +171,7 @@
                 </select>
             </div>
             <div class="col-sm-6">
-                <button class="btn btn-warning btn-sm" type="submit">Apply ENV</button>
+                <button class="btn btn-outline-secondary btn-sm" type="submit">Apply ENV</button>
             </div>
         </form>
 
@@ -187,7 +190,7 @@
 
         <form method="post" action="{{ url_for('config_restart_action') }}"
               onsubmit="return confirm('Exit this process so the host restarts it?');">
-            <button class="btn btn-outline-danger btn-sm" type="submit">Restart server process</button>
+            <button class="btn btn-outline-secondary btn-sm" type="submit">Restart server process</button>
             <span class="cfg-muted small ms-2">Render respawns automatically; local uvicorn may need a manual start.</span>
         </form>
     </div>

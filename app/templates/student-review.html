@@ -1,0 +1,38 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Review your stay · StudentStay{% endblock %}
+
+{% block subpage_content %}
+<div class="student-page student-review-page">
+  <a class="student-back-link" href="{{ url_for('student_bookings_view') }}?status_filter=past">‹ My bookings</a>
+  <section class="student-review-form-panel">
+    <div class="host-status status-completed">Completed</div>
+    <h1>How was your stay?</h1>
+    <p class="student-muted">{{ listing.title }} · {{ booking.check_in }} – {{ booking.check_out }}</p>
+    <form method="post" action="{{ url_for('student_submit_review', booking_id=booking.id) }}">
+      <fieldset class="student-rating-fieldset">
+        <legend class="form-label">Your rating</legend>
+        <div class="student-rating-options">
+          {% for value in [1, 2, 3, 4, 5] %}
+          <label>
+            <input type="radio" name="rating" value="{{ value }}" required>
+            <span>{{ "★" * value }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <label class="form-label mt-3" for="review-comment">Your review
+        <textarea class="form-control" id="review-comment" name="comment" rows="5" minlength="28" maxlength="500" required placeholder="Share your experience (at least 28 characters)."></textarea>
+      </label>
+      <fieldset class="student-review-tags">
+        <legend class="form-label">Your review</legend>
+        <label><input type="checkbox" name="accurate_listing" value="true"> Accurate listing</label>
+        <label><input type="checkbox" name="safe_location" value="true"> Safe location</label>
+        <label><input type="checkbox" name="clean_and_tidy" value="true"> Clean and tidy</label>
+        <label><input type="checkbox" name="responsive_host" value="true"> Responsive host</label>
+      </fieldset>
+      <p class="student-muted">Your name and rating will appear publicly on this listing.</p>
+      <button class="btn btn-primary" type="submit">Submit review</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

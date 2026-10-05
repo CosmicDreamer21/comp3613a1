@@ -17,6 +17,8 @@ async def index_view(
         user = await get_current_user(request, db)
         if await is_admin(user):
             app_home = request.url_for("admin_home_view")
+        elif user.role == "host":
+            app_home = request.url_for("host_home_view")
         else:
             app_home = request.url_for("user_home_view")
 

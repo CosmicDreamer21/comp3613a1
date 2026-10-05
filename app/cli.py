@@ -47,11 +47,7 @@ def cmd_init(args: argparse.Namespace) -> None:
 
 
 def cmd_seed(args: argparse.Namespace) -> None:
-    """Insert demo users.
-
-    bob / bobpass       (regular_user)
-    admin / adminpass   (admin)
-    """
+    """Insert StudentStay demo users."""
     from app.database import ensure_db_and_tables, get_cli_session
     from app.repositories.user import UserRepository
     from app.schemas.user import AdminCreate, RegularUserCreate
@@ -61,8 +57,9 @@ def cmd_seed(args: argparse.Namespace) -> None:
     ensure_db_and_tables()
 
     demo_users = [
-        ("bob", "bob@example.com", "bobpass", "regular_user"),
-        ("admin", "admin@example.com", "adminpass", "admin"),
+        ("maya.student", "maya.chen@campus.edu", "StudentStay123", "student"),
+        ("rivera.host", "elena.rivera@campus.edu", "StudentStay123", "host"),
+        ("admin01", "admin01@campus.edu", "StudentStay123", "admin"),
     ]
 
     created = 0
@@ -86,8 +83,12 @@ def cmd_seed(args: argparse.Namespace) -> None:
             print(f"  create {username} ({role})")
             created += 1
 
+    from app.seed import seed_host_fixtures
+
+    with get_cli_session() as session:
+        seed_host_fixtures(session)
     print(f"Seed done — created {created}, skipped {skipped}.")
-    print("Login with bob/bobpass or admin/adminpass")
+    print("Seed logins use password StudentStay123.")
 
 
 def cmd_run(args: argparse.Namespace) -> None:

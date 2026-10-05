@@ -1,9 +1,49 @@
 {% extends "authenticated-base.html" %}
-{% block title %}Admin{% endblock %}
+{% block title %}Moderation queue · StudentStay{% endblock %}
 
 {% block subpage_content %}
-<div class="container-fluid py-2">
-  <h1 class="h4 mb-2">Admin</h1>
-  <p class="text-muted mb-0">Admin workflow screens replace this shell in Phase 5 implement.</p>
+<div class="admin-page">
+  <div class="admin-page-header">
+    <div>
+      <p class="host-muted mb-1">Admin workspace</p>
+      <h1 class="h2 mb-1">Pending listings</h1>
+      <p class="host-muted mb-0">Review submissions before they appear in student search.</p>
+    </div>
+    <span class="admin-pending-count">{{ pending_listings|length }}</span>
+  </div>
+  {% if pending_listings %}
+  <div class="admin-queue">
+    {% for listing in pending_listings %}
+    <article class="admin-queue-card">
+      {% if listing.image_url %}
+      <img class="admin-queue-image" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+      {% else %}
+      <div class="image-placeholder admin-queue-image">Listing image</div>
+      {% endif %}
+      <div class="admin-queue-main">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+          <div>
+            <h2 class="h5 mb-1">{{ listing.title }}</h2>
+            <p class="host-muted mb-2">{{ listing.room_type }} · {{ listing.city }} · Submitted {{ listing.created_at.strftime("%b %d, %Y") if listing.created_at else "" }}</p>
+          </div>
+          <span class="host-status status-pending">Pending</span>
+        </div>
+        <p class="mb-2">{{ listing.description }}</p>
+        <div class="admin-queue-meta">
+          <span><strong>Host:</strong> {{ listing.host.full_name or listing.host.username if listing.host else "Host" }}</span>
+          <span><strong>Price:</strong> ${{ "%.2f"|format(listing.price_per_night) }}/night</span>
+          <span><strong>Available:</strong> {{ listing.available_from }} to {{ listing.available_until }}</span>
+        </div>
+      </div>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin_listing_review_view', listing_id=listing.id) }}">Review listing</a>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <section class="host-panel admin-empty">
+    <h2 class="h5">Queue is clear</h2>
+    <p class="host-muted mb-0">There are no pending listings to review.</p>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

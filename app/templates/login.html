@@ -1,25 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Sign in{% endblock %}
+{% block title %}Sign in · StudentStay{% endblock %}
 
 {% block content %}
 <div class="auth-shell">
   <div class="auth-panel">
     <a class="auth-back" href="{{ url_for('index_view') }}">← Home</a>
-    <div class="brand-wordmark">FastStarter</div>
-    <p class="auth-tagline">Sign in to continue</p>
+    <div class="brand-wordmark">StudentStay</div>
+    <p class="auth-tagline">Student housing you can trust.</p>
 
     <form method="POST" action="{{ url_for('login_action_ajax') }}">
       <div class="mb-3">
-        <label class="form-label" for="username">Username</label>
-        <input class="form-control" type="text" id="username" name="username" required autofocus>
+        <label class="form-label" for="identifier">Username or email</label>
+        <input class="form-control" type="text" id="identifier" name="identifier" autocomplete="username" required autofocus>
       </div>
       <div class="mb-3">
         <label class="form-label" for="password">Password</label>
-        <input class="form-control" type="password" id="password" name="password" required>
+        <input class="form-control" type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me" value="true">
+        <label class="form-check-label auth-remember" for="remember_me">Remember me</label>
       </div>
       <div class="d-grid gap-2 mb-3">
         <button class="btn btn-primary btn-lg" type="submit">Sign in</button>
-        <a class="btn btn-outline-secondary" href="{{ url_for('register_view') }}">Create an account</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('index_view') }}">Back to StudentStay</a>
       </div>
     </form>
 

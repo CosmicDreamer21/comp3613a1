@@ -189,11 +189,203 @@ covered: yes
 
 ## Theming
 
-Branding preferences and how they were applied (landing / login / register).
+StudentStay uses a minimalist black-and-white theme: white background, `#F5F5F5` section surfaces, `#111111` text and primary buttons, `#6B6B6B` muted text, `#E0E0E0` borders, outlined secondary buttons, Inter type, and slightly rounded corners. No color accents, gradients, or decorative shadows. Status labels are distinguished with black fill, outline, grey, or a rejection X; image placeholders use light grey.
+
+Applied to the public landing, login, register, session-expired page, and authenticated shell. The landing and auth screens carry the StudentStay wordmark and “Student housing you can trust.” tagline. Authenticated pages now use a light header and light page base.
 
 ## Implementation notes
 
 One named workflow at a time. Include verify notes and polish / model revisions (Phase 5). Do not treat the first build as final.
+
+Phase 5 initial slice: shared login accepts username or email; “Remember me” creates a persistent 30-day token/cookie, while unchecked login uses a browser-session cookie with the standard token expiry. Sign-in routes students, hosts, and admins to their respective current home screens. The host and student screens are placeholders until their workflow slices are built. `python manage.py init` seeds `maya.student`, `rivera.host`, and `admin01`, each with `StudentStay123`. Student verification: all three demo users signed in with username and email, role-specific first screens were correct, Remember me persisted only when checked, wrong-password feedback was clear, and the light Inter theme matched the wireframe. Polish note: add the wireframe navigation links as each role workflow is implemented (student Browse / My bookings; host Dashboard / Listings; admin Moderation / History).
+
+List Accommodation decisions: use the wireframe's three-step listing form (property details → pricing/availability → review/submit), omit its visual-only draft/calendar/photo-upload controls, and include the dashboard booking-request list with Confirm/Cancel. Listing resubmission status coordination belongs in the service layer.
+
+Host workflow implementation: the host dashboard and Listings page show listing statuses, rejection reasons, and incoming pending/confirmed bookings. Hosts can create a listing through the three-step form; new listings enter `pending` and remain hidden from students until approved. Rejected listings can be edited and resubmitted, which clears the prior decision metadata and returns the listing to `pending`. Hosts can confirm or cancel only their own pending booking requests. Role checks protect all host routes; SQL stays in repositories and transitions are coordinated by services.
+
+`python manage.py init` and the `/config` initializer seed three approved listings, the pending `Garden Annex near UWI` for `rivera.host`, one pending request, one upcoming confirmed booking, and one past confirmed booking. The past booking is marked completed when the host booking service next loads it; the student review workflow will reuse that transition. Rejected-listing resubmission can be exercised after the Moderate Listings workflow creates a rejected record. The student reported that the Host dashboard and Listings page looked good overall. Follow-up polish formats listing prices to two decimal places and keeps the Host navigation visible on every host view; the student later confirmed that Host prices display to two decimal places.
+
+Moderate Listings implementation: the Admin dashboard now lists pending submissions and opens a listing review page. Approval changes the status to `approved`; rejection requires a selected reason and details. Both decisions record `reviewed_by` and `reviewed_at`. The outcome page shows the decision metadata and rejection feedback. `VERIFIED` is rendered from `status == "approved"` rather than stored separately. Admin navigation includes Moderation and a non-functional History link; the audit-history feature remains out of scope. The student selected a fixed rejection-reason dropdown plus required details.
+
+The Admin code checks surfaced route/service/repository interface and editing issues; the status constraint and service logic were reviewed, the repository method indentation was corrected after the student's attempt, and the final route variable names were aligned to the scaffold. The student verified that the database reinitializes cleanly, approvals and rejections work with required-field validation, and decision metadata renders correctly.
+
+<!-- student-build:code-check
+workflow: Moderate Listings (Admin)
+form: choice
+layer: other
+architecture_ok: yes
+implement_confidence: 0.58
+passed: yes
+note: Chose a fixed rejection-reason dropdown with required explanatory details.
+-->
+
+<!-- student-build:code-check
+workflow: Moderate Listings (Admin)
+form: snippet
+layer: model
+architecture_ok: yes
+implement_confidence: 0.58
+passed: yes
+note: Added a database check constraint limiting Listing.status to pending, approved, or rejected; table creation confirmed the constraint is present.
+-->
+
+<!-- student-build:code-check
+workflow: Moderate Listings (Admin)
+form: snippet
+layer: repository
+architecture_ok: yes
+implement_confidence: 0.48
+passed: partial
+note: Implemented the status/reviewer/timestamp persistence and refresh; Guide corrected method indentation after repeated misalignment.
+-->
+
+<!-- student-build:code-check
+workflow: Moderate Listings (Admin)
+form: snippet
+layer: service
+architecture_ok: yes
+implement_confidence: 0.48
+passed: partial
+note: Implemented pending-only decisions, rejection-field validation, and repository delegation; Guide restored list/detail service methods removed during the student's edit.
+-->
+
+<!-- student-build:code-check
+workflow: Moderate Listings (Admin)
+form: snippet
+layer: router
+architecture_ok: yes
+implement_confidence: 0.48
+passed: partial
+note: Route uses AdminDep and a repository-backed service with no SQL; Guide aligned the final admin and decision arguments after attempted edits remained inconsistent.
+-->
+
+Host polish: Host dashboard and listing-card prices now show two decimal places, and Host navigation is shared through the authenticated base across host views. Approved Host cards show `VERIFIED` based on listing status. The Admin navigation and moderation screens were verified against the working approval/rejection flow; History remains visual-only.
+
+Book Accommodation decisions: allow students to cancel both pending and confirmed upcoming bookings. The student identified service-level checks for listing approval, valid dates, and booking conflicts, with persistence delegated to the repository. Student-specific navigation and protected routes are implemented.
+
+Book Accommodation implementation: the student Browse page searches approved listings by area or room type, listing detail pages show reviews and a calculated average, and the booking form pre-fills the account name, email, and student ID. Booking requests are pending, use price-per-night × nights, and are checked against approval, availability, minimum stay, and overlapping pending/confirmed bookings. My bookings supports upcoming, past, and cancelled views, with cancellation for pending and confirmed stays before check-in. Past confirmed bookings become completed after checkout; only completed bookings without an existing review can be reviewed once. Reviews store the star rating, written text, and four ERD yes/no tags. Student navigation links Browse and My bookings. The seeded Maya account receives a demo student ID for the prefilled form.
+
+Targeted checks confirmed ORM mapping/table creation including the unique review-per-booking constraint, route registration and template parsing, and service calculation of a pending 3-night booking at $320/night to $960.00 while rejecting an unavailable listing. Route-level checks exposed and fixed booking-page 500s caused by passing query parameters to Starlette's path-only template `url_for`; status-tab links and the review return path now encode query strings correctly. Listing search now matches each query word against approved listing titles, cities, addresses, or room types and handles punctuation such as `St. Augustine`. An isolated HTTP test-client pass verified search, empty and past booking pages, booking submission and redirect, and the review return redirect. The student then confirmed search, My Bookings, and booking submission work as expected when run locally.
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: choice
+layer: other
+architecture_ok: yes
+implement_confidence: 0.58
+passed: yes
+note: Chose cancellation for both pending and confirmed upcoming bookings.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: mcq
+layer: service
+architecture_ok: yes
+implement_confidence: 0.58
+passed: yes
+note: Identified the service as the place to coordinate booking eligibility when listing approval changes.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: open
+layer: service
+architecture_ok: yes
+implement_confidence: 0.60
+passed: yes
+note: Explained service checks for listing approval, dates, and conflicts; repository validates/persists the booking data.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: snippet
+layer: model
+architecture_ok: yes
+implement_confidence: 0.46
+passed: partial
+note: Final Review fields and one-review-per-booking uniqueness match the ERD after an initial schema/table/FK naming mismatch and a required correction pass.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: snippet
+layer: router
+architecture_ok: yes
+implement_confidence: 0.46
+passed: yes
+note: The booking route delegates to StudentStayService and passes listing, student, dates, and guests; Guide corrected two inconsistent identifiers from the attempted revision.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: snippet
+layer: repository
+architecture_ok: yes
+implement_confidence: 0.46
+passed: partial
+note: Completed overlap checking for pending/confirmed bookings and commit/refresh persistence; remaining repository methods were implemented as workflow glue.
+-->
+
+<!-- student-build:code-check
+workflow: Book Accommodation (Student)
+form: snippet
+layer: service
+architecture_ok: yes
+implement_confidence: 0.46
+passed: partial
+note: Final request_booking checks approval, date window, minimum stay, conflicts, and total price; required a second pass to align method and field names with the model/repository.
+-->
+
+<!-- student-build:code-check
+workflow: List Accommodation (Host)
+form: choice
+layer: other
+architecture_ok: yes
+implement_confidence: 0.95
+passed: yes
+note: Selected the three-step create-listing flow with the specified visual-only controls omitted.
+-->
+
+<!-- student-build:code-check
+workflow: List Accommodation (Host)
+form: choice
+layer: other
+architecture_ok: yes
+implement_confidence: 0.95
+passed: yes
+note: Included incoming booking requests and Confirm/Cancel in the host slice.
+-->
+
+<!-- student-build:code-check
+workflow: List Accommodation (Host)
+form: mcq
+layer: service
+architecture_ok: yes
+implement_confidence: 0.95
+passed: yes
+note: Identified the service layer for coordinating rejected-listing resubmission status.
+-->
+
+<!-- student-build:code-check
+workflow: List Accommodation (Host)
+form: snippet
+layer: model
+architecture_ok: yes
+implement_confidence: 0.92
+passed: yes
+note: Completed Listing SQLModel fields and host/reviewer foreign-key relationships to match the ERD.
+-->
+
+<!-- student-build:code-check
+workflow: List Accommodation (Host)
+form: snippet
+layer: router
+architecture_ok: yes
+implement_confidence: 0.92
+passed: yes
+note: Completed a thin create route that binds ListingCreate and calls ListingService; aligned the service import to the existing listing_service module.
+-->
 
 ## Deployed app
 
@@ -203,10 +395,11 @@ https://
 
 ## Logins
 
-Every account a marker needs, including extra users you added. Starter accounts:
+Every account a marker needs, including extra users you added:
 
-- bob / bobpass — regular user
-- admin / adminpass — admin
+- maya.student / StudentStay123 — student
+- rivera.host / StudentStay123 — host
+- admin01 / StudentStay123 — admin
 
 ## YouTube URL
 

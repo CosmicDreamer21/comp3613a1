@@ -1,0 +1,53 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Browse listings · StudentStay{% endblock %}
+
+{% block subpage_content %}
+<div class="student-page">
+  <header class="student-page-header">
+    <p class="student-kicker">Student accommodation</p>
+    <h1>Find a place to stay</h1>
+    <p class="student-muted">Browse approved student accommodation near campus.</p>
+  </header>
+
+  <form class="student-search" method="get" action="{{ url_for('student_listings_view') }}">
+    <label class="visually-hidden" for="listing-search">Search area or room type</label>
+    <input class="form-control" id="listing-search" type="search" name="query" value="{{ query }}" placeholder="Search by area or room type">
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+
+  {% if listings %}
+  <div class="student-listing-grid">
+    {% for listing, average_rating, review_count in listings %}
+    <article class="student-listing-card">
+      <a class="student-listing-image-link" href="{{ url_for('student_listing_details_view', listing_id=listing.id) }}">
+        {% if listing.image_url %}
+        <img class="student-listing-image" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+        {% else %}
+        <span class="image-placeholder student-listing-image">Property</span>
+        {% endif %}
+      </a>
+      <div class="student-listing-card-body">
+        <div class="student-card-title">
+          <a href="{{ url_for('student_listing_details_view', listing_id=listing.id) }}"><h2>{{ listing.title }}</h2></a>
+          <span class="verified-badge">VERIFIED</span>
+        </div>
+        <p class="student-muted">{{ listing.room_type }} · {{ listing.city }}</p>
+        <p class="student-card-rating">
+          {% if average_rating is not none %}★ {{ "%.1f"|format(average_rating) }} ({{ review_count }} reviews){% else %}No reviews yet{% endif %}
+        </p>
+        <div class="student-card-footer">
+          <span>${{ "%.2f"|format(listing.price_per_night) }}<span class="student-muted">/night</span></span>
+          <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('student_listing_details_view', listing_id=listing.id) }}">View details</a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <section class="student-empty">
+    <h2>No approved listings found</h2>
+    <p class="student-muted mb-0">Try another area or room type.</p>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
