@@ -7,8 +7,20 @@
   ],
   "use_cases": [
     {
+      "name": "Login",
+      "actors": ["Student", "Host", "Admin"]
+    },
+    {
       "name": "Book Accommodation",
       "actors": ["Student"]
+    },
+    {
+      "name": "Cancel Booking",
+      "extends": ["Book Accommodation"]
+    },
+    {
+      "name": "Review Completed Stay",
+      "extends": ["Book Accommodation"]
     },
     {
       "name": "List Accommodation",
@@ -17,6 +29,10 @@
     {
       "name": "Moderate Listings",
       "actors": ["Admin"]
+    },
+    {
+      "name": "Reject Listing",
+      "extends": ["Moderate Listings"]
     }
   ]
 }

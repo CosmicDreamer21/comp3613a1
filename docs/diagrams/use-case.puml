@@ -14,15 +14,25 @@ actor "Student" as Student
 actor "Admin" as Admin
 
 rectangle "Student Accommodation" {
+  usecase "Login" as Login
   usecase "Book Accommodation" as Book_Accommodation
+  usecase "Cancel Booking" as Cancel_Booking
+  usecase "Review Completed Stay" as Review_Completed_Stay
   usecase "List Accommodation" as List_Accommodation
   usecase "Moderate Listings" as Moderate_Listings
+  usecase "Reject Listing" as Reject_Listing
 }
 
 actor "Host" as Host
 
+Student --> Login
+Login <-- Host
+Admin --> Login
 Student --> Book_Accommodation
+Cancel_Booking ..> Book_Accommodation : <<extend>>
+Review_Completed_Stay ..> Book_Accommodation : <<extend>>
 List_Accommodation <-- Host
 Admin --> Moderate_Listings
+Reject_Listing ..> Moderate_Listings : <<extend>>
 
 @enduml
