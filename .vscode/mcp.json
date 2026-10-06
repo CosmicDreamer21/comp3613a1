@@ -2,8 +2,8 @@
   "inputs": [
     {
       "type": "promptString",
-      "id": "render-api-key",
-      "description": "Render API Key (Dashboard → Account Settings → API Keys). Do not commit the key.",
+      "id": "render-api-key-v2",
+      "description": "Render API Key (Dashboard -> Account Settings -> API Keys). Do not commit the key.",
       "password": true
     }
   ],
@@ -12,7 +12,7 @@
       "type": "http",
       "url": "https://mcp.render.com/mcp",
       "headers": {
-        "Authorization": "Bearer ${input:render-api-key}"
+        "Authorization": "Bearer ${input:render-api-key-v2}"
       }
     }
   }
