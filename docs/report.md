@@ -389,9 +389,9 @@ note: Completed a thin create route that binds ListingCreate and calls ListingSe
 
 ## Deployed app
 
-Phase 6. Public Render URL (not localhost). Markers open this to mark the three workflows.
+Phase 6 complete — deployed via Render Blueprint. The public app is live, and its `/health` endpoint returns `{"ok":true}`. Markers can open the app to mark the three workflows.
 
-https://
+[https://faststarter-a406.onrender.com](https://faststarter-a406.onrender.com)
 
 ## Logins
 
