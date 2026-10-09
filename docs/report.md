@@ -116,19 +116,19 @@ Rules: `User` handles the three roles (`student`, `host`, `admin`). `USER.studen
 
 ### Shared entry
 
-![Shared entry](wireframes/Shared%20entry.png)
+![Shared entry](wireframes/Shared entry.png)
 
 ### Book Accommodation (Student)
 
-![Book Accommodation (Student)](wireframes/Book%20accommodation%20lane.png)
+![Book Accommodation (Student)](wireframes/Book accommodation lane.png)
 
 ### List Accommodation (Host)
 
-![List Accommodation (Host)](wireframes/List%20accommodation%20lane.png)
+![List Accommodation (Host)](wireframes/List accommodation lane.png)
 
 ### Moderate Listings (Admin)
 
-![Moderate Listings (Admin)](wireframes/Moderate%20listings%20lane.png)
+![Moderate Listings (Admin)](wireframes/Moderate listings lane.png)
 
 Phase 4 notes: The shared Login use case, all three primary workflows, and the three conditional use cases are shown. The shared entry covers username/email login, Remember me, and role-aware destinations. The student lane shows browse/detail, booking request and confirmation, cancellation, and completed-stay review. The host lane shows listing creation/submission, statuses, rejection feedback, edit/resubmit, and incoming booking decisions. The admin lane shows the pending queue and approval/rejection with a required reason.
 
