@@ -397,9 +397,9 @@ Phase 6 complete — deployed via Render Blueprint. The public app is live, and 
 
 Every account a marker needs, including extra users you added:
 
-- maya.student / StudentStay123 — student
-- rivera.host / StudentStay123 — host
-- admin01 / StudentStay123 — admin
+- maya.student or maya.chen@campus.edu / StudentStay123 — student
+- rivera.host or elena.rivera@campus.edu / StudentStay123 — host
+- admin01 or admin01@campus.edu / StudentStay123 — admin
 
 ## YouTube URL
 
