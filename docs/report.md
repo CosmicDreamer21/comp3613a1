@@ -403,6 +403,8 @@ Every account a marker needs, including extra users you added:
 
 ## YouTube URL
 
+[https://youtu.be/bcQhgtsQ3sQ](https://youtu.be/bcQhgtsQ3sQ)
+
 ## Session transcripts
 
 Filled when the Guide builds the report: the agent writes each Guide chat to `docs/transcripts/<slug>.md` (Copilot Agent, Cursor, or OpenCode). `python manage.py report` packages them. Do not paste chats here during the build.
