@@ -52,8 +52,9 @@ def test_wrong_password_sets_no_cookie(db, client):
 
 
 def test_student_page_needs_login(client):
-    # the unmodified A1 app shows its 401 "Session expired" page for anonymous visitors
-    assert "Session expired" in client.get("/student/listings").text
+    response = client.get("/student/listings")
+    assert response.status_code == 401
+    assert "Session expired" in response.text
 
 
 def test_host_cannot_open_student_page(db, client):
