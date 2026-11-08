@@ -1,52 +1,40 @@
 {
   "info": {
-    "_postman_id": "8a16c040-5a26-4dd4-a36a-4e8fbf1b1e19",
-    "name": "StudentStay API (COMP 3613 A2)",
-    "description": "API tests for the StudentStay REST API. Run `python manage.py init` and `python manage.py run`, import postman/StudentStay.postman_environment.json, then run the collection top to bottom (Collection Runner or `newman run`). Reset the database with `python manage.py init` before every full run.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "bd25a1d6-44be-4a8c-aaf3-3d2e5ea76ea2",
+    "name": "comp 3613 A2 API TESTS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52591179",
+    "_collection_link": "https://go.postman.co/collection/52591179-bd25a1d6-44be-4a8c-aaf3-3d2e5ea76ea2?source=collection_link"
   },
   "item": [
     {
-      "name": "1. Health and Authentication",
+      "name": "Authentication",
       "item": [
         {
-          "name": "Health check",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
-            }
-          },
+          "name": "Login as student",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Body is {ok: true}', function () { pm.expect(pm.response.json()).to.eql({ ok: true }); });"
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst json = pm.response.json();\r\npm.test(\"Returns a bearer token\", () => {\r\n  pm.expect(json.token_type).to.eql(\"bearer\");\r\n  pm.expect(json.access_token).to.be.a(\"string\").and.not.empty;\r\n});\r\npm.test(\"Role is student\", () => pm.expect(json.role).to.eql(\"student\"));\r\npm.collectionVariables.set(\"studentToken\", json.access_token);\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Login as student",
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"maya.student\",\r\n  \"password\": \"StudentStay123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": [
@@ -57,50 +45,35 @@
                 "auth",
                 "login"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{studentUser}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const json = pm.response.json();",
-                  "pm.test('Returns a bearer token', function () {",
-                  "  pm.expect(json.token_type).to.eql('bearer');",
-                  "  pm.expect(json.access_token).to.be.a('string').and.not.empty;",
-                  "});",
-                  "pm.test('Role is student', function () { pm.expect(json.role).to.eql('student'); });",
-                  "pm.test('Response matches login schema', function () {",
-                  "  pm.response.to.have.jsonSchema({ type: 'object', required: ['access_token', 'token_type', 'role'],",
-                  "    properties: { access_token: { type: 'string' }, token_type: { type: 'string' }, role: { type: 'string' } } });",
-                  "});",
-                  "pm.collectionVariables.set('studentToken', json.access_token);"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Login as host",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst json = pm.response.json();\r\npm.test(\"Returns a bearer token\", () => {\r\n  pm.expect(json.token_type).to.eql(\"bearer\");\r\n  pm.expect(json.access_token).to.be.a(\"string\").and.not.empty;\r\n});\r\npm.test(\"Role is host\", () => pm.expect(json.role).to.eql(\"host\"));\r\npm.collectionVariables.set(\"hostToken\", json.access_token);\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"rivera.host\",\r\n  \"password\": \"StudentStay123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": [
@@ -111,50 +84,35 @@
                 "auth",
                 "login"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{hostUser}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const json = pm.response.json();",
-                  "pm.test('Returns a bearer token', function () {",
-                  "  pm.expect(json.token_type).to.eql('bearer');",
-                  "  pm.expect(json.access_token).to.be.a('string').and.not.empty;",
-                  "});",
-                  "pm.test('Role is host', function () { pm.expect(json.role).to.eql('host'); });",
-                  "pm.test('Response matches login schema', function () {",
-                  "  pm.response.to.have.jsonSchema({ type: 'object', required: ['access_token', 'token_type', 'role'],",
-                  "    properties: { access_token: { type: 'string' }, token_type: { type: 'string' }, role: { type: 'string' } } });",
-                  "});",
-                  "pm.collectionVariables.set('hostToken', json.access_token);"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Login as admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst json = pm.response.json();\r\npm.test(\"Returns a bearer token\", () => {\r\n  pm.expect(json.token_type).to.eql(\"bearer\");\r\n  pm.expect(json.access_token).to.be.a(\"string\").and.not.empty;\r\n});\r\npm.test(\"Role is admin\", () => pm.expect(json.role).to.eql(\"admin\"));\r\npm.collectionVariables.set(\"adminToken\", json.access_token);\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"admin01\",\r\n  \"password\": \"StudentStay123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": [
@@ -165,50 +123,35 @@
                 "auth",
                 "login"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{adminUser}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const json = pm.response.json();",
-                  "pm.test('Returns a bearer token', function () {",
-                  "  pm.expect(json.token_type).to.eql('bearer');",
-                  "  pm.expect(json.access_token).to.be.a('string').and.not.empty;",
-                  "});",
-                  "pm.test('Role is admin', function () { pm.expect(json.role).to.eql('admin'); });",
-                  "pm.test('Response matches login schema', function () {",
-                  "  pm.response.to.have.jsonSchema({ type: 'object', required: ['access_token', 'token_type', 'role'],",
-                  "    properties: { access_token: { type: 'string' }, token_type: { type: 'string' }, role: { type: 'string' } } });",
-                  "});",
-                  "pm.collectionVariables.set('adminToken', json.access_token);"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Login with wrong password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", () => pm.response.to.have.status(401));\r\npm.test(\"Error detail returned\", () => pm.expect(pm.response.json().detail).to.be.a(\"string\"));\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"maya.student\",\r\n  \"password\": \"not-the-password\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": [
@@ -219,77 +162,34 @@
                 "auth",
                 "login"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{studentUser}}\",\n  \"password\": \"not-the-password\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });",
-                  "pm.test('Error detail returned', function () { pm.expect(pm.response.json().detail).to.be.a('string'); });",
-                  "pm.test('WWW-Authenticate header is Bearer', function () { pm.response.to.have.header('WWW-Authenticate', 'Bearer'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Login with missing password",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{studentUser}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Get my profile (student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst me = pm.response.json();\r\npm.test(\"Profile is the student, no password shown\", () => {\r\n  pm.expect(me.username).to.eql(\"maya.student\");\r\n  pm.expect(me.role).to.eql(\"student\");\r\n  pm.expect(me).to.not.have.property(\"password\");\r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -302,38 +202,23 @@
                 "auth",
                 "me"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Browse listings without a token",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const me = pm.response.json();",
-                  "pm.test('Profile is the student and has no password', function () {",
-                  "  pm.expect(me.username).to.eql(pm.environment.get('studentUser'));",
-                  "  pm.expect(me.role).to.eql('student');",
-                  "  pm.expect(me).to.not.have.property('password');",
-                  "});"
+                  "pm.test(\"Status code is 401\", () => pm.response.to.have.status(401));\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Browse listings without a token",
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -348,78 +233,22 @@
               ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
     {
-      "name": "2. List Accommodation (Host)",
+      "name": "List Accommodation (Host)",
       "item": [
         {
           "name": "Host creates a listing",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/host/listings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "host",
-                "listings"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"{{listingTitle}}\",\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\n  \"city\": \"St. Augustine\",\n  \"address\": \"14 Gordon Street, St. Augustine\",\n  \"price_per_night\": \"320.00\",\n  \"room_type\": \"Studio\",\n  \"amenities\": \"Wi-Fi, study desk, parking\",\n  \"image_url\": \"\",\n  \"available_from\": \"{{availFrom}}\",\n  \"available_until\": \"{{availUntil}}\",\n  \"minimum_stay_nights\": 2\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
           "event": [
             {
               "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);",
-                  "pm.collectionVariables.set('availFrom', day(-1));",
-                  "pm.collectionVariables.set('availUntil', day(120));",
-                  "pm.collectionVariables.set('checkIn', day(5));",
-                  "pm.collectionVariables.set('checkOut', day(8));",
-                  "pm.collectionVariables.set('overlapIn', day(6));",
-                  "pm.collectionVariables.set('overlapOut', day(9));",
-                  "pm.collectionVariables.set('listingTitle', 'Postman Annex ' + Date.now());"
+                  "const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);\r\npm.collectionVariables.set(\"availFrom\", day(-1));\r\npm.collectionVariables.set(\"availUntil\", day(120));\r\npm.collectionVariables.set(\"checkIn\", day(5));\r\npm.collectionVariables.set(\"checkOut\", day(8));\r\npm.collectionVariables.set(\"overlapIn\", day(6));\r\npm.collectionVariables.set(\"overlapOut\", day(9));\r\npm.collectionVariables.set(\"listingTitle\", \"Postman Annex \" + Date.now());\r\n"
                 ]
               }
             },
@@ -428,45 +257,61 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                  "const listing = pm.response.json();",
-                  "pm.test('New listing is pending and owned by the host', function () {",
-                  "  pm.expect(listing.status).to.eql('pending');",
-                  "  pm.expect(listing.title).to.eql(pm.collectionVariables.get('listingTitle'));",
-                  "  pm.expect(listing.host_id).to.be.a('number');",
-                  "});",
-                  "pm.test('Response matches listing schema', function () {",
-                  "  pm.response.to.have.jsonSchema({ type: 'object',",
-                  "    required: ['id', 'title', 'status', 'price_per_night', 'available_from', 'available_until', 'minimum_stay_nights'],",
-                  "    properties: { id: { type: 'integer' }, status: { type: 'string' }, minimum_stay_nights: { type: 'integer' } } });",
-                  "});",
-                  "pm.collectionVariables.set('listingId', listing.id);"
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));\r\nconst listing = pm.response.json();\r\npm.test(\"New listing is pending\", () => {\r\n  pm.expect(listing.status).to.eql(\"pending\");\r\n  pm.expect(listing.title).to.eql(pm.collectionVariables.get(\"listingTitle\"));\r\n});\r\npm.collectionVariables.set(\"listingId\", listing.id);\r\n"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{hostToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"{{listingTitle}}\",\r\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\r\n  \"city\": \"St. Augustine\",\r\n  \"address\": \"14 Gordon Street, St. Augustine\",\r\n  \"price_per_night\": \"320.00\",\r\n  \"room_type\": \"Studio\",\r\n  \"amenities\": \"Wi-Fi, study desk, parking\",\r\n  \"image_url\": \"\",\r\n  \"available_from\": \"{{availFrom}}\",\r\n  \"available_until\": \"{{availUntil}}\",\r\n  \"minimum_stay_nights\": 2\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/host/listings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "host",
+                "listings"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Host creates a listing with price 0",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/host/listings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "host",
-                "listings"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -477,38 +322,17 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"{{listingTitle}}\",\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\n  \"city\": \"St. Augustine\",\n  \"address\": \"14 Gordon Street, St. Augustine\",\n  \"price_per_night\": \"0\",\n  \"room_type\": \"Studio\",\n  \"amenities\": \"Wi-Fi, study desk, parking\",\n  \"image_url\": \"\",\n  \"available_from\": \"{{availFrom}}\",\n  \"available_until\": \"{{availUntil}}\",\n  \"minimum_stay_nights\": 2\n}",
+              "raw": "{\r\n  \"title\": \"{{listingTitle}}\",\r\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\r\n  \"city\": \"St. Augustine\",\r\n  \"address\": \"14 Gordon Street, St. Augustine\",\r\n  \"price_per_night\": \"0\",\r\n  \"room_type\": \"Studio\",\r\n  \"amenities\": \"Wi-Fi, study desk, parking\",\r\n  \"image_url\": \"\",\r\n  \"available_from\": \"{{availFrom}}\",\r\n  \"available_until\": \"{{availUntil}}\",\r\n  \"minimum_stay_nights\": 2\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Host creates a listing with a bad date window",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/host/listings",
               "host": [
@@ -519,43 +343,34 @@
                 "host",
                 "listings"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"{{listingTitle}}\",\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\n  \"city\": \"St. Augustine\",\n  \"address\": \"14 Gordon Street, St. Augustine\",\n  \"price_per_night\": \"320.00\",\n  \"room_type\": \"Studio\",\n  \"amenities\": \"Wi-Fi, study desk, parking\",\n  \"image_url\": \"\",\n  \"available_from\": \"{{availFrom}}\",\n  \"available_until\": \"{{availFrom}}\",\n  \"minimum_stay_nights\": 2\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });",
-                  "pm.test('Message explains the dates', function () { pm.expect(JSON.stringify(pm.response.json())).to.include('available-until'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Host lists own listings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Created listing is listed as pending\", () => {\r\n  const mine = pm.response.json().find(l => l.id === Number(pm.collectionVariables.get(\"listingId\")));\r\n  pm.expect(mine).to.exist;\r\n  pm.expect(mine.status).to.eql(\"pending\");\r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{hostToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -568,56 +383,24 @@
                 "host",
                 "listings"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Student cannot create a listing",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Created listing is in the list as pending', function () {",
-                  "  const mine = pm.response.json().find(l => l.id === pm.collectionVariables.get('listingId'));",
-                  "  pm.expect(mine).to.exist;",
-                  "  pm.expect(mine.status).to.eql('pending');",
-                  "});"
+                  "pm.test(\"Status code is 403\", () => pm.response.to.have.status(403));\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Student cannot create a listing",
+          ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/host/listings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "host",
-                "listings"
-              ]
-            },
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -628,31 +411,55 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"{{listingTitle}}\",\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\n  \"city\": \"St. Augustine\",\n  \"address\": \"14 Gordon Street, St. Augustine\",\n  \"price_per_night\": \"320.00\",\n  \"room_type\": \"Studio\",\n  \"amenities\": \"Wi-Fi, study desk, parking\",\n  \"image_url\": \"\",\n  \"available_from\": \"{{availFrom}}\",\n  \"available_until\": \"{{availUntil}}\",\n  \"minimum_stay_nights\": 2\n}",
+              "raw": "{\r\n  \"title\": \"{{listingTitle}}\",\r\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\r\n  \"city\": \"St. Augustine\",\r\n  \"address\": \"14 Gordon Street, St. Augustine\",\r\n  \"price_per_night\": \"320.00\",\r\n  \"room_type\": \"Studio\",\r\n  \"amenities\": \"Wi-Fi, study desk, parking\",\r\n  \"image_url\": \"\",\r\n  \"available_from\": \"{{availFrom}}\",\r\n  \"available_until\": \"{{availUntil}}\",\r\n  \"minimum_stay_nights\": 2\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/host/listings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "host",
+                "listings"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Pending listing is hidden from students",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                  "pm.test(\"Status code is 404\", () => pm.response.to.have.status(404));\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Pending listing is hidden from students",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -665,38 +472,39 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Moderate Listings (Admin)",
+      "item": [
+        {
+          "name": "Admin views the pending queue",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Queue contains the new listing\", () => {\r\n  pm.expect(pm.response.json().map(l => l.id)).to.include(Number(pm.collectionVariables.get(\"listingId\")));\r\n});\r\n"
                 ]
               }
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "3. Moderate Listings (Admin)",
-      "item": [
-        {
-          "name": "Admin views the pending queue",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -715,100 +523,24 @@
                   "value": "pending"
                 }
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Queue contains the new listing', function () {",
-                  "  pm.expect(pm.response.json().map(l => l.id)).to.include(pm.collectionVariables.get('listingId'));",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Queue with an invalid status",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/listings?status=archived",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "listings"
-              ],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "archived"
-                }
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Host cannot moderate",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", () => pm.response.to.have.status(403));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "listings",
-                "{{listingId}}"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -819,38 +551,67 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"approved\"\n}",
+              "raw": "{\r\n  \"status\": \"approved\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "listings",
+                "{{listingId}}"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Reject without a reason",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\npm.test(\"Message asks for the reason\", () => pm.expect(pm.response.json().detail).to.include(\"required\"));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"rejected\",\r\n  \"rejection_reason_choice\": \"\",\r\n  \"rejection_reason_details\": \"\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
               "host": [
@@ -862,50 +623,45 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"rejected\",\n  \"rejection_reason_choice\": \"\",\n  \"rejection_reason_details\": \"\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });",
-                  "pm.test('Message asks for the reason', function () { pm.expect(pm.response.json().detail).to.include('required'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Reject with a reason",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst l = pm.response.json();\r\npm.test(\"Listing is rejected with the reason and reviewer\", () => {\r\n  pm.expect(l.status).to.eql(\"rejected\");\r\n  pm.expect(l.rejection_reason_choice).to.eql(\"Incomplete details\");\r\n  pm.expect(l.reviewed_by).to.be.a(\"number\");\r\n});\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"rejected\",\r\n  \"rejection_reason_choice\": \"Incomplete details\",\r\n  \"rejection_reason_details\": \"Please add a clearer description.\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
               "host": [
@@ -917,56 +673,45 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"rejected\",\n  \"rejection_reason_choice\": \"Incomplete details\",\n  \"rejection_reason_details\": \"Please add a clearer description.\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
+          "response": []
+        },
+        {
+          "name": "Host resubmits the rejected listing",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const listing = pm.response.json();",
-                  "pm.test('Listing is rejected with feedback and reviewer', function () {",
-                  "  pm.expect(listing.status).to.eql('rejected');",
-                  "  pm.expect(listing.rejection_reason_choice).to.eql('Incomplete details');",
-                  "  pm.expect(listing.reviewed_by).to.be.a('number');",
-                  "  pm.expect(listing.reviewed_at).to.be.a('string');",
-                  "});"
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Listing is pending again\", () => {\r\n  pm.expect(pm.response.json().status).to.eql(\"pending\");\r\n  pm.expect(pm.response.json().rejection_reason_choice).to.be.null;\r\n});\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Host resubmits the rejected listing",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{hostToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"{{listingTitle}}\",\r\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\r\n  \"city\": \"St. Augustine\",\r\n  \"address\": \"14 Gordon Street, St. Augustine\",\r\n  \"price_per_night\": \"320.00\",\r\n  \"room_type\": \"Studio\",\r\n  \"amenities\": \"Wi-Fi, study desk, parking\",\r\n  \"image_url\": \"\",\r\n  \"available_from\": \"{{availFrom}}\",\r\n  \"available_until\": \"{{availUntil}}\",\r\n  \"minimum_stay_nights\": 2\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/host/listings/{{listingId}}",
               "host": [
@@ -978,54 +723,45 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"{{listingTitle}}\",\n  \"description\": \"Furnished annex with a study desk and secure parking.\",\n  \"city\": \"St. Augustine\",\n  \"address\": \"14 Gordon Street, St. Augustine\",\n  \"price_per_night\": \"320.00\",\n  \"room_type\": \"Studio\",\n  \"amenities\": \"Wi-Fi, study desk, parking\",\n  \"image_url\": \"\",\n  \"available_from\": \"{{availFrom}}\",\n  \"available_until\": \"{{availUntil}}\",\n  \"minimum_stay_nights\": 2\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Listing is pending again and feedback is cleared', function () {",
-                  "  const l = pm.response.json();",
-                  "  pm.expect(l.status).to.eql('pending');",
-                  "  pm.expect(l.rejection_reason_choice).to.be.null;",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Admin approves the listing",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Listing is approved\", () => pm.expect(pm.response.json().status).to.eql(\"approved\"));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"approved\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
               "host": [
@@ -1037,54 +773,45 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"approved\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Listing is approved with reviewer recorded', function () {",
-                  "  const l = pm.response.json();",
-                  "  pm.expect(l.status).to.eql('approved');",
-                  "  pm.expect(l.reviewed_by).to.be.a('number');",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Approve the same listing again",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", () => pm.response.to.have.status(409));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"approved\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/admin/listings/{{listingId}}",
               "host": [
@@ -1096,47 +823,39 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{adminToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"approved\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
     {
-      "name": "4. Book Accommodation (Student)",
+      "name": "Book Accommodation (Student)",
       "item": [
         {
           "name": "Search finds the approved listing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst results = pm.response.json();\r\npm.test(\"Only the approved listing is returned and is verified\", () => {\r\n  pm.expect(results).to.have.lengthOf(1);\r\n  pm.expect(results[0].id).to.eql(Number(pm.collectionVariables.get(\"listingId\")));\r\n  pm.expect(results[0].verified).to.be.true;\r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1154,86 +873,34 @@
                   "value": "{{listingTitle}}"
                 }
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const results = pm.response.json();",
-                  "pm.test('Exactly the approved listing is returned and is VERIFIED', function () {",
-                  "  pm.expect(results).to.have.lengthOf(1);",
-                  "  pm.expect(results[0].id).to.eql(pm.collectionVariables.get('listingId'));",
-                  "  pm.expect(results[0].verified).to.be.true;",
-                  "});",
-                  "pm.test('Response matches list schema', function () {",
-                  "  pm.response.to.have.jsonSchema({ type: 'array', items: { type: 'object', required: ['id', 'title', 'price_per_night', 'review_count'] } });",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Search with no match",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/listings?query=zzzz-no-such-place",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "listings"
-              ],
-              "query": [
-                {
-                  "key": "query",
-                  "value": "zzzz-no-such-place"
-                }
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200 and list is empty', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.eql([]); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "View listing details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Details show price and no reviews yet\", () => {\r\n  const l = pm.response.json();\r\n  pm.expect(l.price_per_night).to.eql(\"320.00\");\r\n  pm.expect(l.reviews).to.eql([]);\r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1246,56 +913,24 @@
                 "listings",
                 "{{listingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Details include price, window and empty reviews', function () {",
-                  "  const l = pm.response.json();",
-                  "  pm.expect(l.price_per_night).to.eql('320.00');",
-                  "  pm.expect(l.reviews).to.eql([]);",
-                  "  pm.expect(l.average_rating).to.be.null;",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Request a 3-night booking",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));\r\nconst b = pm.response.json();\r\npm.test(\"Booking is pending and total is 3 x 320.00\", () => {\r\n  pm.expect(b.status).to.eql(\"pending\");\r\n  pm.expect(parseFloat(b.total_price)).to.eql(960);\r\n});\r\npm.collectionVariables.set(\"bookingId\", b.id);\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1306,54 +941,44 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{checkIn}}\",\n  \"check_out\": \"{{checkOut}}\",\n  \"guests\": 1\n}",
+              "raw": "{\r\n  \"listing_id\": {{listingId}},\r\n  \"check_in\": \"{{checkIn}}\",\r\n  \"check_out\": \"{{checkOut}}\",\r\n  \"guests\": 1\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                  "const b = pm.response.json();",
-                  "pm.test('Booking is pending and total is nights x price (3 x 320.00)', function () {",
-                  "  pm.expect(b.status).to.eql('pending');",
-                  "  pm.expect(parseFloat(b.total_price)).to.eql(960);",
-                  "});",
-                  "pm.collectionVariables.set('bookingId', b.id);"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Overlapping booking is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", () => pm.response.to.have.status(409));\r\npm.test(\"Message mentions the overlap\", () => pm.expect(pm.response.json().detail).to.include(\"overlap\"));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1364,49 +989,44 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{overlapIn}}\",\n  \"check_out\": \"{{overlapOut}}\",\n  \"guests\": 1\n}",
+              "raw": "{\r\n  \"listing_id\": {{listingId}},\r\n  \"check_in\": \"{{overlapIn}}\",\r\n  \"check_out\": \"{{overlapOut}}\",\r\n  \"guests\": 1\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });",
-                  "pm.test('Message mentions the overlap', function () { pm.expect(pm.response.json().detail).to.include('overlap'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Check-out before check-in is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1417,38 +1037,17 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{checkOut}}\",\n  \"check_out\": \"{{checkIn}}\",\n  \"guests\": 1\n}",
+              "raw": "{\r\n  \"listing_id\": {{listingId}},\r\n  \"check_in\": \"{{checkOut}}\",\r\n  \"check_out\": \"{{checkIn}}\",\r\n  \"guests\": 1\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Below the 2-night minimum is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/bookings",
               "host": [
@@ -1458,60 +1057,24 @@
                 "api",
                 "bookings"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{checkOut}}\",\n  \"check_out\": \"{{overlapOut}}\",\n  \"guests\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });",
-                  "pm.test('Message mentions minimum stay', function () { pm.expect(pm.response.json().detail).to.include('Minimum stay'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Host cannot book",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", () => pm.response.to.have.status(403));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1522,31 +1085,54 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{checkIn}}\",\n  \"check_out\": \"{{checkOut}}\",\n  \"guests\": 1\n}",
+              "raw": "{\r\n  \"listing_id\": {{listingId}},\r\n  \"check_in\": \"{{checkIn}}\",\r\n  \"check_out\": \"{{checkOut}}\",\r\n  \"guests\": 1\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "My bookings shows the pending request",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Booking is listed as pending without a review\", () => {\r\n  const mine = pm.response.json().find(b => b.id === Number(pm.collectionVariables.get(\"bookingId\")));\r\n  pm.expect(mine).to.exist;\r\n  pm.expect(mine.status).to.eql(\"pending\");\r\n  pm.expect(mine.has_review).to.be.false;\r\n});\r\n"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "My bookings shows the pending request",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1558,44 +1144,39 @@
                 "api",
                 "bookings"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Host handles booking requests",
+      "item": [
+        {
+          "name": "Host sees the booking request",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Booking is listed as pending without a review', function () {",
-                  "  const mine = pm.response.json().find(b => b.id === pm.collectionVariables.get('bookingId'));",
-                  "  pm.expect(mine).to.exist;",
-                  "  pm.expect(mine.status).to.eql('pending');",
-                  "  pm.expect(mine.has_review).to.be.false;",
-                  "});"
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Request is listed with the listing title\", () => {\r\n  const r = pm.response.json().find(b => b.id === Number(pm.collectionVariables.get(\"bookingId\")));\r\n  pm.expect(r).to.exist;\r\n  pm.expect(r.listing_title).to.eql(pm.collectionVariables.get(\"listingTitle\"));\r\n});\r\n"
                 ]
               }
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "5. Host handles booking requests",
-      "item": [
-        {
-          "name": "Host sees the booking request",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{hostToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1608,46 +1189,45 @@
                 "host",
                 "bookings"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Request is listed with listing and student names', function () {",
-                  "  const r = pm.response.json().find(b => b.id === pm.collectionVariables.get('bookingId'));",
-                  "  pm.expect(r).to.exist;",
-                  "  pm.expect(r.listing_title).to.eql(pm.collectionVariables.get('listingTitle'));",
-                  "  pm.expect(r.student_name).to.be.a('string').and.not.empty;",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Host confirms the request",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Booking is confirmed\", () => pm.expect(pm.response.json().status).to.eql(\"confirmed\"));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{hostToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"confirmed\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/host/bookings/{{bookingId}}",
               "host": [
@@ -1659,62 +1239,24 @@
                 "bookings",
                 "{{bookingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"confirmed\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Booking is confirmed', function () { pm.expect(pm.response.json().status).to.eql('confirmed'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Confirm an already confirmed request",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", () => pm.response.to.have.status(409));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/host/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "host",
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1725,38 +1267,17 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"confirmed\"\n}",
+              "raw": "{\r\n  \"status\": \"confirmed\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Host cannot set status completed",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            },
             "url": {
               "raw": "{{baseUrl}}/api/host/bookings/{{bookingId}}",
               "host": [
@@ -1768,119 +1289,29 @@
                 "bookings",
                 "{{bookingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{hostToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"completed\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Student cannot use the host endpoint",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/host/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "host",
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"confirmed\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
     {
-      "name": "6. Cancel and Review (Student)",
+      "name": "Cancel and Review (Student)",
       "item": [
         {
-          "name": "Student cancels the confirmed booking",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "name": "Student cancels the booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Booking is cancelled\", () => pm.expect(pm.response.json().status).to.eql(\"cancelled\"));\r\n"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1891,39 +1322,66 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"cancelled\"\n}",
+              "raw": "{\r\n  \"status\": \"cancelled\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Booking is cancelled', function () { pm.expect(pm.response.json().status).to.eql('cancelled'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Cancel the same booking again",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", () => pm.response.to.have.status(409));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"cancelled\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
               "host": [
@@ -1934,94 +1392,34 @@
                 "bookings",
                 "{{bookingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"cancelled\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Cancelled dates can be booked again",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"listing_id\": {{listingId}},\n  \"check_in\": \"{{checkIn}}\",\n  \"check_out\": \"{{checkOut}}\",\n  \"guests\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Find the completed stay to review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\nconst open = pm.response.json().find(b => b.status === \"completed\" && !b.has_review);\r\npm.test(\"A completed stay without a review exists (run python manage.py init first)\", () => pm.expect(open).to.exist);\r\nif (open) {\r\n  pm.collectionVariables.set(\"completedBookingId\", open.id);\r\n  pm.collectionVariables.set(\"completedListingId\", open.listing_id);\r\n}\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -2039,46 +1437,45 @@
                   "value": "completed"
                 }
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "const open = pm.response.json().find(b => b.status === 'completed' && !b.has_review);",
-                  "pm.test('A completed stay without a review exists (run `python manage.py init` first)', function () { pm.expect(open).to.exist; });",
-                  "if (open) {",
-                  "  pm.collectionVariables.set('completedBookingId', open.id);",
-                  "  pm.collectionVariables.set('completedListingId', open.listing_id);",
-                  "}"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Review with rating 6 is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 6,\r\n  \"comment\": \"Great place, quiet and close to campus.\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{completedBookingId}}/review",
               "host": [
@@ -2090,158 +1487,45 @@
                 "{{completedBookingId}}",
                 "review"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 6,\n  \"comment\": \"Great place, quiet and close to campus.\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Review with a short comment is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings/{{completedBookingId}}/review",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings",
-                "{{completedBookingId}}",
-                "review"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Nice\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () { pm.response.to.have.status(422); });",
-                  "pm.test('Message mentions 28 characters', function () { pm.expect(pm.response.json().detail).to.include('28'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Review a pending stay is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/review",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "bookings",
-                "{{bookingId}}",
-                "review"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great place, quiet and close to campus.\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Student submits a review",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));\r\npm.test(\"Review stores rating and tags\", () => {\r\n  const r = pm.response.json();\r\n  pm.expect(r.rating).to.eql(4);\r\n  pm.expect(r.accurate_listing).to.be.true;\r\n  pm.expect(r.responsive_host).to.be.false;\r\n});\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 4,\r\n  \"comment\": \"Great place, quiet and close to campus.\",\r\n  \"accurate_listing\": true,\r\n  \"safe_location\": true,\r\n  \"clean_and_tidy\": true,\r\n  \"responsive_host\": false\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{completedBookingId}}/review",
               "host": [
@@ -2253,55 +1537,45 @@
                 "{{completedBookingId}}",
                 "review"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Great place, quiet and close to campus.\",\n  \"accurate_listing\": true,\n  \"safe_location\": true,\n  \"clean_and_tidy\": true,\n  \"responsive_host\": false\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                  "pm.test('Review stores rating and tags', function () {",
-                  "  const r = pm.response.json();",
-                  "  pm.expect(r.rating).to.eql(4);",
-                  "  pm.expect(r.accurate_listing).to.be.true;",
-                  "  pm.expect(r.responsive_host).to.be.false;",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Second review for the same stay is refused",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", () => pm.response.to.have.status(409));\r\n"
+                ]
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 5,\r\n  \"comment\": \"Trying to review the same stay twice.\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{completedBookingId}}/review",
               "host": [
@@ -2313,7 +1587,24 @@
                 "{{completedBookingId}}",
                 "review"
               ]
-            },
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listing shows the review and average",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"Average rating includes the new review\", () => {\r\n  const l = pm.response.json();\r\n  pm.expect(l.review_count).to.be.at.least(1);\r\n  pm.expect(l.average_rating).to.be.within(1, 5);\r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2324,31 +1615,6 @@
                 }
               ]
             },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Trying to review the same stay twice.\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Listing shows the review and average",
-          "request": {
             "method": "GET",
             "header": [],
             "url": {
@@ -2361,94 +1627,16 @@
                 "listings",
                 "{{completedListingId}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{studentToken}}",
-                  "type": "string"
-                }
-              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Average rating includes the new review', function () {",
-                  "  const l = pm.response.json();",
-                  "  pm.expect(l.review_count).to.be.at.least(1);",
-                  "  pm.expect(l.average_rating).to.be.within(1, 5);",
-                  "  pm.expect(l.reviews.map(r => r.comment)).to.include('Great place, quiet and close to campus.');",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     }
   ],
   "variable": [
     {
-      "key": "studentToken",
-      "value": ""
-    },
-    {
-      "key": "hostToken",
-      "value": ""
-    },
-    {
-      "key": "adminToken",
-      "value": ""
-    },
-    {
-      "key": "listingId",
-      "value": ""
-    },
-    {
-      "key": "listingTitle",
-      "value": ""
-    },
-    {
-      "key": "availFrom",
-      "value": ""
-    },
-    {
-      "key": "availUntil",
-      "value": ""
-    },
-    {
-      "key": "checkIn",
-      "value": ""
-    },
-    {
-      "key": "checkOut",
-      "value": ""
-    },
-    {
-      "key": "overlapIn",
-      "value": ""
-    },
-    {
-      "key": "overlapOut",
-      "value": ""
-    },
-    {
-      "key": "bookingId",
-      "value": ""
-    },
-    {
-      "key": "completedBookingId",
-      "value": ""
-    },
-    {
-      "key": "completedListingId",
+      "key": "baseUrl",
       "value": ""
     }
   ]
