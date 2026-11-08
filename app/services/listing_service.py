@@ -1,6 +1,7 @@
 from app.models.listing import Listing
 from app.repositories.listing import ListingRepository
 from app.schemas.listing import ListingCreate
+from app.services.errors import ConflictError
 
 
 class ListingService:
@@ -26,7 +27,7 @@ class ListingService:
         self._validate_dates(listing_data)
         listing = self.get_host_listing(listing_id, host_id)
         if listing.status != "rejected":
-            raise ValueError("Only rejected listings can be edited and resubmitted.")
+            raise ConflictError("Only rejected listings can be edited and resubmitted.")
         return self.listing_repo.resubmit(listing, listing_data)
 
     @staticmethod

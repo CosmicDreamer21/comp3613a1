@@ -4,6 +4,7 @@ from app.models.booking import Booking
 from app.models.listing import Listing
 from app.models.user import User
 from app.repositories.booking import BookingRepository
+from app.services.errors import ConflictError
 
 
 class BookingService:
@@ -32,5 +33,5 @@ class BookingService:
             raise LookupError("Booking request not found.")
         booking, _ = result
         if booking.status != "pending":
-            raise ValueError("Only pending booking requests can be updated.")
+            raise ConflictError("Only pending booking requests can be updated.")
         return self.booking_repo.update_status(booking, new_status)

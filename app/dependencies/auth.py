@@ -14,6 +14,10 @@ async def get_current_user(request:Request, db:SessionDep)->User:
         headers={"WWW-Authenticate": "Bearer"},
     )
     token = request.cookies.get("access_token")
+    if token is None:
+        scheme, _, bearer = request.headers.get("Authorization", "").partition(" ")
+        if scheme.lower() == "bearer" and bearer.strip():
+            token = bearer.strip()
 
     if token is None:
         raise credentials_exception
@@ -47,7 +51,7 @@ async def is_admin(user: User):
 async def is_admin_dep(user: AuthDep):
     if not await is_admin(user):
         raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not authorized to access this page",
             )
     return user

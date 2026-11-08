@@ -5,6 +5,7 @@ from app.models.listing import Listing
 from app.models.review import Review
 from app.models.user import User
 from app.repositories.student_stay import StudentStayRepository
+from app.services.errors import ConflictError, NotFoundError
 
 
 class StudentStayService:
@@ -58,7 +59,7 @@ class StudentStayService:
 
         listing = self.repository.get_approved_listing(listing_id)
         if not listing:
-            raise ValueError("Listing not found or is not approved.")
+            raise NotFoundError("Listing not found or is not approved.")
 
         if check_in < listing.available_from:
             raise ValueError("Check-in date is before the listing's available date.")
@@ -70,7 +71,7 @@ class StudentStayService:
             raise ValueError(f"Minimum stay required is {listing.minimum_stay_nights} night(s).")
 
         if self.repository.booking_conflicts(listing_id, check_in, check_out):
-            raise ValueError("The selected dates overlap with an existing booking.")
+            raise ConflictError("The selected dates overlap with an existing booking.")
 
         total_price = nights * listing.price_per_night
 
@@ -108,9 +109,9 @@ class StudentStayService:
             raise LookupError("Booking not found.")
         booking = result[0]
         if booking.status not in {"pending", "confirmed"}:
-            raise ValueError("Only pending or confirmed bookings can be cancelled.")
+            raise ConflictError("Only pending or confirmed bookings can be cancelled.")
         if booking.check_in < date.today():
-            raise ValueError("A stay that has already started cannot be cancelled.")
+            raise ConflictError("A stay that has already started cannot be cancelled.")
         return self.repository.update_booking_status(booking, "cancelled")
 
     def get_reviewable_booking(
@@ -125,9 +126,9 @@ class StudentStayService:
                 booking, "completed"
             )
         if booking.status != "completed":
-            raise ValueError("A review is available after the stay is completed.")
+            raise ConflictError("A review is available after the stay is completed.")
         if self.repository.has_review(booking_id):
-            raise ValueError("This completed stay already has a review.")
+            raise ConflictError("This completed stay already has a review.")
         return booking, listing
 
     def submit_review(

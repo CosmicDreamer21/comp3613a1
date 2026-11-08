@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from app.models.listing import Listing
 from app.repositories.listing import ListingRepository
+from app.services.errors import ConflictError
 
 
 class ModerationService:
@@ -10,6 +11,11 @@ class ModerationService:
 
     def list_pending(self) -> list[Listing]:
         return self.listing_repo.list_pending()
+
+    def list_by_status(self, status: str) -> list[Listing]:
+        if status not in {"pending", "approved", "rejected"}:
+            raise ValueError("Status must be pending, approved or rejected.")
+        return self.listing_repo.list_by_status(status)
 
     def get_listing(self, listing_id: int) -> Listing:
         listing = self.listing_repo.get_by_id(listing_id)
@@ -27,7 +33,7 @@ class ModerationService:
     ) -> Listing:
         listing = self.get_listing(listing_id)
         if listing.status != "pending":
-            raise ValueError("Only pending listings can be reviewed.")
+            raise ConflictError("Only pending listings can be reviewed.")
 
         if decision == "approved":
             next_status = "approved"

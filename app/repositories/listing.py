@@ -44,6 +44,14 @@ class ListingRepository:
         )
         return list(self.db.exec(statement).all())
 
+    def list_by_status(self, status: str) -> list[Listing]:
+        statement = (
+            select(Listing)
+            .where(Listing.status == status)
+            .order_by(Listing.created_at.asc())
+        )
+        return list(self.db.exec(statement).all())
+
     def get_by_id(self, listing_id: int) -> Listing | None:
         return self.db.get(Listing, listing_id)
 
